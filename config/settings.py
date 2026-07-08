@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'users',
     'listings',
     'django_filters',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,21 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
+
+# Настройки Django REST Framework и интеграция со Swagger
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+}
+
+# Настройки внешнего вида документации Swagger
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Rental Project API',
+    'DESCRIPTION': 'API для бронирования недвижимости (ТЗ)',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

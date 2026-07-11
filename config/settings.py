@@ -140,6 +140,11 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
+    # Вот этот блок добавляем для поддержки JWT:
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication', # оставляем для работы браузерного DRF
+    ),
 }
 
 # Настройки внешнего вида документации Swagger

@@ -7,7 +7,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/', include('listings.urls')),
-    path('api/', include('bookings.urls')),  # Добавили роуты нового приложения
+    path('api/', include('bookings.urls')),
+    path('api/', include('reviews.urls')),  # Подключили маршруты отзывов в общую структуру /api/
     path('api-auth/', include('rest_framework.urls')),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -15,4 +16,5 @@ urlpatterns = [
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/', include('history.urls')),
 ]

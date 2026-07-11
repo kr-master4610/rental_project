@@ -1,19 +1,18 @@
 from django_filters import rest_framework as filters
 from .models import Listing
 
-
 class ListingFilter(filters.FilterSet):
-    # Фильтры для цены (минимальная и максимальная)
-    min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
-    max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
+    # Фильтрация по диапазону цен (минимальная и максимальная)
+    price_min = filters.NumberFilter(field_name="price", lookup_expr='gte')
+    price_max = filters.NumberFilter(field_name="price", lookup_expr='lte')
 
-    # Фильтры для количества комнат (диапазон)
-    min_rooms = filters.NumberFilter(field_name="rooms", lookup_expr='gte')
-    max_rooms = filters.NumberFilter(field_name="rooms", lookup_expr='lte')
+    # Фильтрация по диапазону комнат
+    rooms_min = filters.NumberFilter(field_name="rooms", lookup_expr='gte')
+    rooms_max = filters.NumberFilter(field_name="rooms", lookup_expr='lte')
 
-    # Поиск по локации (город или район в Германии) без учета регистра
+    # Поиск по городу/району (без учета регистра)
     location = filters.CharFilter(field_name="location", lookup_expr='icontains')
 
     class Meta:
         model = Listing
-        fields = ['housing_type', 'is_active']
+        fields = ['housing_type', 'location']

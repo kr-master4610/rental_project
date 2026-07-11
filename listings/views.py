@@ -1,19 +1,24 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from history.models import SearchHistory, ViewHistory
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.db import models
 
 from .models import Listing
 from .serializers import ListingSerializer
 from .filters import ListingFilter
+from .permissions import IsLandlordOrReadOnly
 
 
-# --- Управление объявлениями ---
 class ListingViewSet(viewsets.ModelViewSet):
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
+    # Кастомное правило доступа (Арендодатели создают/редактируют, остальные только читают)
+    permission_classes = [IsLandlordOrReadOnly]
+
+    # Подключение фильтрации, поиска и сортировки
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ListingFilter
 
@@ -24,14 +29,32 @@ class ListingViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        # Если пользователь не авторизован — видит только активные объявления
+        # Автоматическое сохранение истории поиска при наличии query-параметра 'search'
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            SearchHistory.objects.create(
+                user=user if user.is_authenticated else None,
+                query_text=search_query
+            )
+
+        # Разграничение видимости объявлений (анонимы видят только активные)
         if user.is_anonymous:
             return Listing.objects.filter(is_active=True)
 
-        # Авторизованный пользователь видит свои объявления (даже скрытые)
-        # плюс все активные объявления от других пользователей
         return Listing.objects.filter(models.Q(landlord=user) | models.Q(is_active=True)).distinct()
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Автоматическое сохранение истории просмотров конкретного объявления
+        ViewHistory.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            listing=instance
+        )
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
-        # Текущий пользователь автоматически становится арендодателем этого объекта
+        # Автоматически привязываем текущего авторизованного пользователя как хозяина жилья
         serializer.save(landlord=self.request.user)

@@ -3,6 +3,9 @@ from .models import Review
 from bookings.models import Booking
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Review model.
+    """
     author = serializers.ReadOnlyField(source='author.email')
 
     class Meta:
@@ -13,7 +16,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         listing = data['listing']
 
-        # Проверяем, бронировал ли этот пользователь данное жилье со статусом 'confirmed'
+        # Validate that the user has a confirmed booking for this listing
         has_booked = Booking.objects.filter(
             tenant=user,
             listing=listing,
@@ -22,13 +25,13 @@ class ReviewSerializer(serializers.ModelSerializer):
 
         if not has_booked:
             raise serializers.ValidationError(
-                "Вы не можете оставить отзыв, так как у вас нет подтвержденных бронирований этого жилья."
+                "You cannot leave a review without a confirmed booking."
             )
 
-        # Защита: один пользователь — один отзыв на конкретное объявление
+        # Protection: only one review per user per listing
         if Review.objects.filter(author=user, listing=listing).exists():
             raise serializers.ValidationError(
-                "Вы уже оставили отзыв для этого объявления."
+                "You have already left a review for this listing."
             )
 
         return data

@@ -2,42 +2,40 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-
 class Listing(models.Model):
+    """
+    Model representing a real estate listing.
+    """
     APARTMENT = 'apartment'
     HOUSE = 'house'
     STUDIO = 'studio'
 
     TYPE_CHOICES = [
-        (APARTMENT, 'Квартира'),
-        (HOUSE, 'Дом'),
-        (STUDIO, 'Студия'),
+        (APARTMENT, 'Apartment'),
+        (HOUSE, 'House'),
+        (STUDIO, 'Studio'),
     ]
 
     landlord = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,  # Prevent deletion if listings exist
         related_name='listings'
     )
     title = models.CharField(max_length=255)
     description = models.TextField()
-    location = models.CharField(max_length=255)  # Город или район в Германии
+    location = models.CharField(max_length=255)
 
-    # Валидатор: цена аренды не может быть отрицательной или нулевой
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(1.00, message="Цена должна быть больше нуля.")]
+        validators=[MinValueValidator(1.00, message="Price must be greater than zero.")]
     )
-
-    # Валидатор: в объекте должна быть как минимум 1 комната и не более 20
     rooms = models.IntegerField(
         validators=[
-            MinValueValidator(1, message="В жилье должна быть минимум 1 комната."),
-            MaxValueValidator(20, message="Максимальное количество комнат — 20.")
+            MinValueValidator(1, message="Must have at least 1 room."),
+            MaxValueValidator(20, message="Maximum 20 rooms allowed.")
         ]
     )
-
     housing_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=APARTMENT)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

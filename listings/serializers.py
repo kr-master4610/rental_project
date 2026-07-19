@@ -2,6 +2,9 @@ from rest_framework import serializers
 from .models import Listing
 
 class ListingSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Listing model.
+    """
     landlord = serializers.ReadOnlyField(source='landlord.email')
 
     class Meta:

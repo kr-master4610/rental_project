@@ -1,12 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-
 class CustomUser(AbstractUser):
-    # Делаем email основным полем для входа вместо username
+    """
+    Custom user model using email as the primary login field.
+    """
     email = models.EmailField(unique=True)
-
-    # Поле role полностью удалено, так как у всех одна роль
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

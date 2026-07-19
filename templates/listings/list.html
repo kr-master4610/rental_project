@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Аренда недвижимости</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        .listing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .price { color: #2ecc71; font-weight: bold; font-size: 1.2em; }
+        h1 { text-align: center; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Доступные объекты</h1>
+        <div class="listing-grid">
+            {% for listing in listings %}
+            <div class="card">
+                <h3>{{ listing.title }}</h3>
+                <p>📍 {{ listing.location }}</p>
+                <p class="price">{{ listing.price }} €/мес</p>
+                <p>Тип: {{ listing.housing_type }} | Комнат: {{ listing.rooms }}</p>
+            </div>
+            {% empty %}
+            <p>Объектов пока нет.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -14,15 +14,15 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """
-        Validate booking dates and check for overlaps with confirmed bookings.
+        Validate booking dates and check for overlaps with active (pending or confirmed) bookings.
         """
         if data['start_date'] >= data['end_date']:
             raise serializers.ValidationError("Start date must be before end date.")
 
-        # Check for overlaps only with confirmed bookings
+        # Check for overlaps with both pending and confirmed bookings
         overlapping_bookings = Booking.objects.filter(
             listing=data['listing'],
-            status='confirmed',
+            status__in=['pending', 'confirmed'],
             start_date__lte=data['end_date'],
             end_date__gte=data['start_date']
         )
@@ -31,6 +31,6 @@ class BookingSerializer(serializers.ModelSerializer):
             overlapping_bookings = overlapping_bookings.exclude(pk=self.instance.pk)
 
         if overlapping_bookings.exists():
-            raise serializers.ValidationError("This listing is already booked for these dates.")
+            raise serializers.ValidationError("This listing is already booked or pending for these dates.")
 
         return data

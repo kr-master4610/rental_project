@@ -21,6 +21,8 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        # Guarantee at the database level that a user can leave only one review per listing
+        unique_together = ('listing', 'author')
 
     def __str__(self):
         return f"Review by {self.author.email} on {self.listing.title} ({self.rating}★)"

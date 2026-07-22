@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from .models import Listing
@@ -17,6 +17,15 @@ def listing_list(request):
     # Fetch only active listings to display on the frontend
     listings = Listing.objects.filter(is_active=True)
     return render(request, 'listings/list.html', {'listings': listings})
+
+def listing_detail(request, pk):
+    # Fetch listing by id and record view history
+    listing = get_object_or_404(Listing, pk=pk)
+    ViewHistory.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        listing=listing
+    )
+    return render(request, 'listings/detail.html', {'listing': listing})
 
 @login_required
 def create_listing(request):

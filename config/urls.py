@@ -3,12 +3,13 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib.auth import views as auth_views
-from listings.views import listing_list, create_listing
+from listings.views import listing_list, create_listing, listing_detail
 from users import views as user_views
 
 urlpatterns = [
     # Main frontend entry point
     path('', listing_list, name='home'),
+    path('property/<int:pk>/', listing_detail, name='listing_detail'),
     path('create/', create_listing, name='create_listing'),
 
     # Admin interface

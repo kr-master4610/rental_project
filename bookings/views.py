@@ -63,6 +63,10 @@ class BookingViewSet(viewsets.ModelViewSet):
         if not booking:
             return Response({"error": "Booking not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        # Protection: cannot re-cancel an already cancelled booking
+        if booking.status == 'cancelled':
+            return Response({"error": "This booking is already cancelled."}, status=status.HTTP_400_BAD_REQUEST)
+
         if booking.start_date <= timezone.now().date():
             return Response({"error": "Cannot cancel a booking that has already started or passed."},
                             status=status.HTTP_400_BAD_REQUEST)
